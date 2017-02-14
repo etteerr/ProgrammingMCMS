@@ -80,7 +80,7 @@ void do_compute(const struct parameters* p, struct results *r)
 	{
 
 		cnext = (1-hm_get_coeff(i,j))*sideCoef;
-		cdiag = 1-cnext;
+		cdiag = 1-hm_get_coeff(i,j)-cnext;
 		hm_set(i,j,
 				//SUm neighbours (direct)
 				((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,hm_column-1) + hm_get(i,j+1))/4.0)*cnext +
@@ -96,7 +96,7 @@ void do_compute(const struct parameters* p, struct results *r)
 	for ( i = 1; i < hm_row - 1; i++)
 	{
 		cnext = (1-hm_get_coeff(i,j))*sideCoef;
-		cdiag = 1-cnext;
+		cdiag = 1-hm_get_coeff(i,j)-cnext;
 		hm_set(i,j,
 				//SUm neighbours (direct)
 				((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,0))/4.0)*cnext +
@@ -143,6 +143,13 @@ int hm_init_map(struct parameters * p) {
 	//Set vars
 	size_t row = p->N;
 	size_t column = p->M;
+
+	begin_picture(666, column, row, p->io_tmin, p->io_tmax);
+	for (int i = 0; i < row; i++)
+		for(int j = 0; j < column; j++)
+			draw_point(i,j,p->tinit[i*column + j]);
+
+	end_picture();
 
 	//Init tmps
 	void * tmp1 = 0;
