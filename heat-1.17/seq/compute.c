@@ -144,13 +144,6 @@ int hm_init_map(struct parameters * p) {
 	size_t row = p->N;
 	size_t column = p->M;
 
-	begin_picture(666, column, row, p->io_tmin, p->io_tmax);
-	for (int i = 0; i < row; i++)
-		for(int j = 0; j < column; j++)
-			draw_point(i,j,p->tinit[i*column + j]);
-
-	end_picture();
-
 	//Init tmps
 	void * tmp1 = 0;
 	void * tmp2 = 0;
@@ -180,6 +173,20 @@ int hm_init_map(struct parameters * p) {
 
 		//fix row
 		hm_row--;
+
+		//print test
+		begin_picture(666, column, row, p->io_tmin, p->io_tmax);
+			for (int i = 0; i < row; i++)
+				for(int j = 0; j < column; j++)
+					draw_point(i,j,p->tinit[i*column + j]);
+
+		end_picture();
+		begin_picture(667, column, row, p->io_tmin, p->io_tmax);
+			for (int i = 0; i < row; i++)
+				for(int j = 0; j < column; j++)
+					draw_point(i,j,hm_get(i,j));
+
+		end_picture();
 
 	}
 
