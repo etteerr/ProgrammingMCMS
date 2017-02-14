@@ -10,8 +10,9 @@ int main(int argc, char **argv)
     //Allocate& init heatmap
     if (hm_init_map(&p))
         return 1;
-
-    printf("Ok");
+    
+    // Remove this line
+    printf("Ok\n");
 
     do_compute(&p, &r);
 
