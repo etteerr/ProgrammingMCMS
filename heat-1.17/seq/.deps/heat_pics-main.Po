@@ -1,0 +1,13 @@
+heat_pics-main.o: ../src/main.c /usr/include/stdc-predef.h \
+ ../src/compute.h ../src/input.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h ../src/output.h
+
+/usr/include/stdc-predef.h:
+
+../src/compute.h:
+
+../src/input.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:
+
+../src/output.h:

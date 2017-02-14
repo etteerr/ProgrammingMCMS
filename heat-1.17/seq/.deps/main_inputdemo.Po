@@ -1,0 +1,8 @@
+main_inputdemo.o: main_inputdemo.c /usr/include/stdc-predef.h \
+ ../src/input.h /usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h
+
+/usr/include/stdc-predef.h:
+
+../src/input.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h:
