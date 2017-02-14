@@ -14,7 +14,10 @@ int main(int argc, char **argv)
     // Remove this line
     printf("Ok\n");
 
-    do_compute(&p, &r);
+    int i=0;
+    while(i++<p.maxiter) {
+    	do_compute(&p, &r);
+    }
 
     report_results(&p, &r);
 
