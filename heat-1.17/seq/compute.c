@@ -161,7 +161,7 @@ int hm_init_map(struct parameters * p) {
 		hm_data     =   (double*) tmp1;
 		hm_prevData =   (double*) tmp2;
 		hm_coeff    =   (double*) tmp3;
-		hm_row     =   row;
+		hm_row     =   row+2;
 		hm_column  =   column;
 
 		memcpy((void*)(hm_prevData+column), (void*)p->tinit, sizeof(double)*row*column);
@@ -171,9 +171,6 @@ int hm_init_map(struct parameters * p) {
 		memcpy((void*)hm_prevData, (void*)p->tinit, sizeof(double)*column);
 		memcpy((void*)(hm_prevData+(row+1)*column), (void*)(p->tinit+row*column-column), sizeof(double)*column);
 
-		//fix row
-		hm_row--;
-
 		//print test
 		begin_picture(666, column, row, p->io_tmin, p->io_tmax);
 			for (int i = 0; i < row; i++)
@@ -182,7 +179,7 @@ int hm_init_map(struct parameters * p) {
 
 		end_picture();
 		begin_picture(667, column, row, p->io_tmin, p->io_tmax);
-			for (int i = 0; i < row; i++)
+			for (int i = 1; i < row+1; i++)
 				for(int j = 0; j < column; j++)
 					draw_point(i,j,hm_get(i,j));
 
