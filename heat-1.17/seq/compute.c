@@ -50,6 +50,16 @@ inline void do_cell(unsigned int i, unsigned int j) {
 
 }
 
+inline void renderImageMemory(size_t key, double min, double max) {
+	begin_picture(key, hm_column, (hm_row+2)*2, min, max);
+
+	for(int i = 0; i < hm_column; i++) {
+		for (int j =0; j < (hm_row+2)*2; j++)
+			draw_point(i,j,hm_data[i*hm_column + j]);
+	}
+	end_picture();
+}
+
 void do_compute(const struct parameters* p, struct results *r)
 {
 	unsigned int i, j;
@@ -130,6 +140,8 @@ void do_compute(const struct parameters* p, struct results *r)
 	}
 
 	report_results(p,r);
+
+	renderImageMemory(r->niter, r->tmin, r->tmax);
 
 	hm_swap();
 
