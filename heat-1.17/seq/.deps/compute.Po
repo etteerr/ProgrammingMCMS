@@ -42,7 +42,7 @@ compute.o: compute.c /usr/include/stdc-predef.h \
  ../src/input.h ../src/output.h /usr/include/string.h \
  /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h \
- /usr/include/x86_64-linux-gnu/bits/string3.h
+ /usr/include/x86_64-linux-gnu/bits/string3.h ../src/output.h
 
 /usr/include/stdc-predef.h:
 
@@ -159,3 +159,5 @@ compute.o: compute.c /usr/include/stdc-predef.h \
 /usr/include/x86_64-linux-gnu/bits/string2.h:
 
 /usr/include/x86_64-linux-gnu/bits/string3.h:
+
+../src/output.h:
