@@ -5,6 +5,7 @@
 #include "../src/compute.h"
 #include "../src/output.h"
 
+#define checkSanity 0
 #define sideCoef 0.58578643762
 
 //Static pointers to data
@@ -20,15 +21,27 @@ size_t hm_column = 0;
 //Getters and setters
 // Inline for performance
 inline double hm_get(int row, int column) {
-	return hm_prevData[(int)(hm_column * row + column) + hm_column];
+	if (checkSanity) {
+		if (row > (int)hm_row || column > hm_column || row < -1 || column < 0)
+			printf("Invalid coördinate requested (%i,%i)\n", row, column);
+	}
+	return hm_prevData[hm_column * (row+1) + column];
 }
 
-inline double hm_get_current(signed long int  row, long int  column) {
-	return hm_data[(int)(hm_column * row + column) + hm_column];
+inline double hm_get_current(size_t  row, size_t  column) {
+	if (checkSanity) {
+		if (row > hm_row || column > hm_column || row < 0 || column < 0)
+			printf("Invalid coördinate requested (current) (%i,%i)\n", row, column);
+	}
+	return hm_data[hm_column * (row+1) + column];
 }
 
-inline void hm_set(long int row, long int column, double val) {
-	*(hm_data + (int)(hm_column * row + column) + hm_column) = val;
+inline void hm_set(size_t row, size_t column, double val) {
+	if (checkSanity) {
+		if (row > hm_row || column > hm_column || row < 0 || column < 0)
+			printf("Invalid coördinate set (%i,%i)\n", row, column);
+	}
+	*(hm_data + hm_column * (row+1) + column) = val;
 }
 
 inline double hm_get_coeff(size_t row, size_t column) {
@@ -68,7 +81,7 @@ void do_compute(const struct parameters* p, struct results *r)
 	// Calculate the inner sums
 	for ( i = 0; i < hm_row ; i++)
 	{
-		for ( j = 0; j < hm_column; j++)
+		for ( j = 1; j < hm_column-1; j++)
 		{
 			cnext = (1-hm_get_coeff(i,j))*sideCoef;
 			cdiag = 1-hm_get_coeff(i,j)-cnext;
@@ -80,9 +93,13 @@ void do_compute(const struct parameters* p, struct results *r)
 					//Add current
 					hm_get(i,j) * hm_get_coeff(i,j)
 			);
-//			printf("%.5f -> %.5f\n", hm_get(i,j), hm_get_current(i,j));fflush(stdout);
-//			printf("%.5f -> %.5f\n", cdiag, cnext);fflush(stdout);
-//			printf("%.16f\n", ((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1))/4.0)*cnext);
+
+			if (checkSanity) {
+				if (hm_get(i,j) != 1.0 || hm_get_current(i,j) != 1.0) {
+					printf("(%i,%i) %.5f -> %.5f\n",i,j, hm_get(i,j), hm_get_current(i,j));fflush(stdout);
+					sleep(1);
+				}
+			}
 		}
 	}
 
@@ -100,6 +117,13 @@ void do_compute(const struct parameters* p, struct results *r)
 				//Add current
 				hm_get(i,j) * hm_get_coeff(i,j)
 		);
+
+		if (checkSanity) {
+			if (hm_get(i,j) != 1.0 || hm_get_current(i,j) != 1.0) {
+				printf("(%i,%i) %.5f -> %.5f\n",i,j, hm_get(i,j), hm_get_current(i,j));fflush(stdout);
+				sleep(1);
+			}
+		}
 	}
 
 	//  right side
@@ -141,7 +165,7 @@ void do_compute(const struct parameters* p, struct results *r)
 
 	report_results(p,r);
 
-	renderImageMemory(r->niter, r->tmin, r->tmax);
+	if (checkSanity) renderImageMemory(r->niter, -100.0, +100.0);
 
 	hm_swap();
 
@@ -174,9 +198,9 @@ int hm_init_map(struct parameters * p) {
 		if (HM_VERBOSE) printf("Error while allocating memory in hm_init_map: %i, %i", result1, result2);
 	}else {
 		hm_data     =   (double*) (tmp1);
-		hm_prevData =   (double*) (tmp1+2*column+column*row); //skip two ghost rows and a map.
+		hm_prevData =   (double*) (tmp1+column*(row+2)); //skip two ghost rows and a map.
 		hm_coeff    =   (double*) tmp3;
-		hm_row     =   row+2;
+		hm_row     =   row;
 		hm_column  =   column;
 
 		//Copy data
@@ -209,7 +233,11 @@ int hm_init_map(struct parameters * p) {
 
 		end_picture();
 
-	}
-
+		if (checkSanity) {
+	//		Test map
+			for (int i = 0; i < (column*(row+2))*2; i++)
+				hm_data[i] = 1.0;// ((double)rand()/RAND_MAX)*(double)rand();
+		}
+	}//end of allocate succes if
 	return result1 | result2;
 }
