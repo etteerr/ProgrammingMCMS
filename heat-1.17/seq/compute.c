@@ -20,6 +20,7 @@ size_t hm_column = 0;
 
 //Getters and setters
 // Inline for performance
+__attribute__((assume_aligned(16)))
 inline double hm_get(int row, int column) {
 	if (checkSanity) {
 		if (row > (int)hm_row || column > hm_column || row < -1 || column < 0)
@@ -28,6 +29,7 @@ inline double hm_get(int row, int column) {
 	return hm_prevData[hm_column * (row+1) + column];
 }
 
+__attribute__((assume_aligned(16)))
 inline double hm_get_current(size_t  row, size_t  column) {
 	if (checkSanity) {
 		if (row > hm_row || column > hm_column || row < 0 || column < 0)
@@ -43,11 +45,12 @@ inline void hm_set(size_t row, size_t column, double val) {
 	}
 	*(hm_data + hm_column * (row+1) + column) = val;
 }
-
+__attribute__((assume_aligned(16)))
 inline double hm_get_coeff(size_t row, size_t column) {
 	return hm_coeff[hm_column * row + column];
 }
 
+__attribute__((assume_aligned(16)))
 inline void hm_set_coeff(size_t row, size_t column, double val) {
 	hm_coeff[hm_column * row + column] = val;
 }
