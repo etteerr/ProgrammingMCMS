@@ -126,7 +126,7 @@ void do_compute(const struct parameters* p, struct results *r)
 	//convergence
 	r->maxdiff = 0;
 	r->tmax = 0;
-	r->tmin = p->io_tmax;
+	r->tmin = 1e9;
 	r->tavg = 0;
 	for(i = 0; i < hm_row * hm_column; i++) {
 		//max
@@ -182,6 +182,7 @@ int hm_init_map(struct parameters * p) {
 		//Copy data
 		// Heatmap
 		memcpy((void*)(hm_prevData+column), (void*)p->tinit, sizeof(double)*row*column);
+		memcpy((void*)(hm_data+column), (void*)p->tinit, sizeof(double)*row*column); // Fixes strange problems
 		// Prevdata
 		memcpy((void*)hm_coeff, (void*)p->conductivity, sizeof(double)*row*column);
 
