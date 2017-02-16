@@ -20,4 +20,8 @@ void do_compute(const struct parameters *p,
  */
 int hm_init_map(struct parameters *p);
 
+/**
+ * calculates statistics
+ */
+void calcStatistics(struct parameters* p,struct results* r);
 #endif

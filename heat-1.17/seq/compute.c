@@ -1,4 +1,3 @@
-#include <sys/time.h>
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,6 +5,7 @@
 #include "../src/output.h"
 
 #define checkSanity 0
+#define sanityPGM 0
 #define sideCoef 0.58578643762
 
 //Static pointers to data
@@ -73,6 +73,25 @@ inline void renderImageMemory(size_t key, double min, double max) {
 	end_picture();
 }
 
+void calcStatistics(struct parameters* p,struct results* r) {
+    	//convergence
+    	r->maxdiff = 0;
+    	r->tmax = 0;
+    	r->tmin = 1e9;
+    	r->tavg = 0;
+    	for(int i = 0; i < hm_row; i++)
+    		for (int j =0; j < hm_column; j++) {
+				//max
+				if (hm_get_current(i,j) > r->tmax) r->tmax = hm_get_current(i,j);
+				//min
+				if (hm_get_current(i,j) < r->tmin) r->tmin = hm_get_current(i,j);
+				//maxdiff
+				if (abs(hm_get_current(i,j)-hm_get(i,j)) > r->maxdiff) r->maxdiff = abs(hm_get_current(i,j)-hm_get(i,j));
+				//searchme
+				r->tavg += hm_get_current(i,j)/(hm_column*hm_row);
+    		}
+}
+
 void do_compute(const struct parameters* p, struct results *r)
 {
 	unsigned int i, j;
@@ -97,7 +116,6 @@ void do_compute(const struct parameters* p, struct results *r)
 			if (checkSanity) {
 				if (hm_get(i,j) != 1.0 || hm_get_current(i,j) != 1.0) {
 					printf("(%i,%i) %.5f -> %.5f\n",i,j, hm_get(i,j), hm_get_current(i,j));fflush(stdout);
-					sleep(1);
 				}
 			}
 		}
@@ -121,7 +139,6 @@ void do_compute(const struct parameters* p, struct results *r)
 		if (checkSanity) {
 			if (hm_get(i,j) != 1.0 || hm_get_current(i,j) != 1.0) {
 				printf("(%i,%i) %.5f -> %.5f\n",i,j, hm_get(i,j), hm_get_current(i,j));fflush(stdout);
-				sleep(1);
 			}
 		}
 	}
@@ -142,32 +159,12 @@ void do_compute(const struct parameters* p, struct results *r)
 		);
 	}
 
+	if (checkSanity && sanityPGM) renderImageMemory(r->niter, -100.0, +100.0);
 
+	hm_swap();
 
 	// add inter
 	r->niter++;
-
-	//convergence
-	r->maxdiff = 0;
-	r->tmax = 0;
-	r->tmin = 1e9;
-	r->tavg = 0;
-	for(i = 0; i < hm_row * hm_column; i++) {
-		//max
-		if (hm_data[i] > r->tmax) r->tmax = hm_data[i];
-		//min
-		if (hm_data[i] < r->tmin) r->tmin = hm_data[i];
-		//maxdiff
-		if (abs(hm_data[i]-hm_prevData[i]) > r->maxdiff) r->maxdiff = abs(hm_data[i]-hm_prevData[i]);
-		//searchme
-		r->tavg += hm_data[i]/(hm_column*hm_row);
-	}
-
-	report_results(p,r);
-
-	if (checkSanity) renderImageMemory(r->niter, -100.0, +100.0);
-
-	hm_swap();
 
 }
 
