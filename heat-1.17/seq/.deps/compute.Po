@@ -41,9 +41,9 @@ compute.o: compute.c /usr/include/stdc-predef.h /usr/include/math.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include/emmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include/xmmintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/5/include/mmintrin.h \
- /usr/lib/gcc/x86_64-linux-gnu/5/include/mm_malloc.h \
- /usr/include/xlocale.h ../src/compute.h ../src/input.h ../src/output.h \
- /usr/include/string.h /usr/include/x86_64-linux-gnu/bits/string.h \
+ /usr/lib/gcc/x86_64-linux-gnu/5/include/mm_malloc.h ../src/compute.h \
+ ../src/input.h ../src/output.h /usr/include/string.h \
+ /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
  /usr/include/x86_64-linux-gnu/bits/string2.h \
  /usr/include/x86_64-linux-gnu/bits/string3.h ../src/output.h
 
@@ -153,8 +153,6 @@ compute.o: compute.c /usr/include/stdc-predef.h /usr/include/math.h \
 
 /usr/lib/gcc/x86_64-linux-gnu/5/include/mm_malloc.h:
 
-/usr/include/xlocale.h:
-
 ../src/compute.h:
 
 ../src/input.h:
@@ -162,6 +160,8 @@ compute.o: compute.c /usr/include/stdc-predef.h /usr/include/math.h \
 ../src/output.h:
 
 /usr/include/string.h:
+
+/usr/include/xlocale.h:
 
 /usr/include/x86_64-linux-gnu/bits/string.h:
 
