@@ -12,8 +12,8 @@
 	shared(hm_data, hm_prevData, hm_coeff, hm_row, hm_column, stdout) \
 	private(i,j) if((hm_row*hm_column > 100000) && _E_parallel)
 
-#define ompforloop2d for nowait schedule(guided)
-#define ompforloop1d for nowait schedule(guided)
+#define ompforloop2d for nowait schedule(static)
+//#define ompforloop1d for nowait schedule(guided)
 
 //Static pointers to data
 double * hm_data = 0;
@@ -27,41 +27,49 @@ size_t hm_column = 0;
 
 //Getters and setters
 // Inline for performance
-__attribute__((assume_aligned(16)))
-inline double hm_get(int row, int column) {
-	if (checkSanity) {
-		if (row > (int)hm_row || column > hm_column || row < -1 || column < 0)
-			printf("Invalid coördinate requested (%i,%i)\n", row, column);
-	}
-	return hm_prevData[hm_column * (row+1) + column];
-}
+#define hm_get(R,C) hm_prevData[hm_column * (R+1) + C]
+//__attribute__((assume_aligned(16)))
+//inline double hm_get(int row, int column) {
+//	if (checkSanity) {
+//		if (row > (int)hm_row || column > hm_column || row < -1 || column < 0)
+//			printf("Invalid coördinate requested (%i,%i)\n", row, column);
+//	}
+//	return hm_prevData[hm_column * (row+1) + column];
+//}
 
-__attribute__((assume_aligned(16)))
-inline double hm_get_current(size_t  row, size_t  column) {
-	if (checkSanity) {
-		if (row > hm_row || column > hm_column || row < 0 || column < 0)
-			printf("Invalid coördinate requested (current) (%i,%i)\n", row, column);
-	}
-	return hm_data[hm_column * (row+1) + column];
-}
+#define hm_get_current(R,C) hm_data[hm_column * (R+1) + C]
+//__attribute__((assume_aligned(16)))
+//inline double hm_get_current(size_t  row, size_t  column) {
+//	if (checkSanity) {
+//		if (row > hm_row || column > hm_column || row < 0 || column < 0)
+//			printf("Invalid coördinate requested (current) (%i,%i)\n", row, column);
+//	}
+//	return hm_data[hm_column * (row+1) + column];
+//}
 
-inline void hm_set(size_t row, size_t column, double val) {
-	if (checkSanity) {
-		if (row > hm_row || column > hm_column || row < 0 || column < 0)
-			printf("Invalid coördinate set (%i,%i)\n", row, column);
-	}
-	*(hm_data + hm_column * (row+1) + column) = val;
-}
-__attribute__((assume_aligned(16)))
-inline double hm_get_coeff(size_t row, size_t column) {
-	return hm_coeff[hm_column * row + column];
-}
+#define hm_set(R,C,V) hm_data[hm_column * (R+1) + C] = V
+//inline void hm_set(size_t row, size_t column, double val) {
+//	if (checkSanity) {
+//		if (row > hm_row || column > hm_column || row < 0 || column < 0)
+//			printf("Invalid coördinate set (%i,%i)\n", row, column);
+//	}
+//	*(hm_data + hm_column * (row+1) + column) = val;
+//}
 
-__attribute__((assume_aligned(16)))
-inline void hm_set_coeff(size_t row, size_t column, double val) {
-	hm_coeff[hm_column * row + column] = val;
-}
+#define hm_get_coeff(R,C) hm_coeff[hm_column * R + C]
+//__attribute__((assume_aligned(16)))
+//inline double hm_get_coeff(size_t row, size_t column) {
+//	return hm_coeff[hm_column * row + column];
+//}
 
+#define hm_set_coeff(R,C,V) hm_coeff[hm_column * R + C] = V
+//__attribute__((assume_aligned(16)))
+//inline void hm_set_coeff(size_t row, size_t column, double val) {
+//	hm_coeff[hm_column * row + column] = val;
+//}
+
+//Inline is faster in this case
+//#define hm_swap { double * tmp = hm_data; hm_data = hm_prevData; hm_prevData = tmp; }
 inline void hm_swap() {
 	double * tmp = hm_data;
 	hm_data = hm_prevData;
@@ -89,6 +97,7 @@ void calcStatistics(struct parameters* p,struct results* r) {
     	r->tmax = 0;
     	r->tmin = 1e9;
     	r->tavg = 0;
+    	double sum = 0.0;
     	for(int i = 0; i < hm_row; i++)
     		for (int j =0; j < hm_column; j++) {
 				//max
@@ -96,10 +105,12 @@ void calcStatistics(struct parameters* p,struct results* r) {
 				//min
 				if (hm_get_current(i,j) < r->tmin) r->tmin = hm_get_current(i,j);
 				//maxdiff
-				if (abs(hm_get_current(i,j)-hm_get(i,j)) > r->maxdiff) r->maxdiff = abs(hm_get_current(i,j)-hm_get(i,j));
+				if (fabs(hm_get_current(i,j)-hm_get(i,j)) > r->maxdiff) r->maxdiff = fabs(hm_get_current(i,j)-hm_get(i,j));
 				//searchme
-				r->tavg += hm_get_current(i,j)/(hm_column*hm_row);
+				sum += hm_get_current(i,j);
     		}
+
+    	r->tavg += sum/(hm_column*hm_row);
 }
 
 void do_compute(const struct parameters* p, struct results *r)
@@ -113,61 +124,42 @@ void do_compute(const struct parameters* p, struct results *r)
 		#pragma omp ompforloop2d
 		for ( i = 0; i < hm_row ; i++)
 		{
+
+			//left
+			cnext = (1-hm_get_coeff(i,0))*sideCoef;
+			cdiag = 1-hm_get_coeff(i,0)-cnext;
+			hm_set(i,0,
+					//SUm neighbours (direct)
+					((hm_get(i-1,0) + hm_get(i+1,0) + hm_get(i,hm_column-1) + hm_get(i,1))*.25)*cnext +
+					//Sum diag
+					((hm_get(i-1,hm_column-1) + hm_get(i+1,1) + hm_get(i+1,hm_column-1) + hm_get(i-1,1))*.25)*cdiag +
+					//Add current
+					hm_get(i,0) * hm_get_coeff(i,0)
+			);
+
+			//Middle
 			for ( j = 1; j < hm_column-1; j++)
 			{
 				cnext = (1-hm_get_coeff(i,j))*sideCoef;
 				cdiag = 1-hm_get_coeff(i,j)-cnext;
 				hm_set(i,j,
 						//SUm neighbours (direct)
-						((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1))/4.0)*cnext +
+						((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1))*.25)*cnext +
 						//Sum diag
-						((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1))/4.0)*cdiag +
+						((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1))*.25)*cdiag +
 						//Add current
 						hm_get(i,j) * hm_get_coeff(i,j)
 				);
-
-				if (checkSanity) {
-					if (hm_get(i,j) != 1.0 || hm_get_current(i,j) != 1.0) {
-						printf("(%i,%i) %.5f -> %.5f\n",i,j, hm_get(i,j), hm_get_current(i,j));fflush(stdout);
-					}
-				}
 			}
-		}
 
-		//left side
-		#pragma omp ompforloop1d
-		for ( i = 0; i < hm_row; i++)
-		{
-
-			cnext = (1-hm_get_coeff(i,0))*sideCoef;
-			cdiag = 1-hm_get_coeff(i,0)-cnext;
-			hm_set(i,0,
-					//SUm neighbours (direct)
-					((hm_get(i-1,0) + hm_get(i+1,0) + hm_get(i,hm_column-1) + hm_get(i,1))/4.0)*cnext +
-					//Sum diag
-					((hm_get(i-1,hm_column-1) + hm_get(i+1,1) + hm_get(i+1,hm_column-1) + hm_get(i-1,1))/4.0)*cdiag +
-					//Add current
-					hm_get(i,0) * hm_get_coeff(i,0)
-			);
-
-			if (checkSanity) {
-				if (hm_get(i,0) != 1.0 || hm_get_current(i,0) != 1.0) {
-					printf("(%i,%i) %.5f -> %.5f\n",i,0, hm_get(i,0), hm_get_current(i,0));fflush(stdout);
-				}
-			}
-		}
-
-		//  right side
-		#pragma omp ompforloop1d
-		for ( i = 0; i < hm_row; i++)
-		{
+			//right
 			cnext = (1-hm_get_coeff(i,(hm_column-1)))*sideCoef;
 			cdiag = 1-hm_get_coeff(i,(hm_column-1))-cnext;
 			hm_set(i,(hm_column-1),
 					//SUm neighbours (direct)
-					((hm_get(i-1,(hm_column-1)) + hm_get(i+1,(hm_column-1)) + hm_get(i,(hm_column-1)-1) + hm_get(i,0))/4.0)*cnext +
+					((hm_get(i-1,(hm_column-1)) + hm_get(i+1,(hm_column-1)) + hm_get(i,(hm_column-1)-1) + hm_get(i,0))*.25)*cnext +
 					//Sum diag
-					((hm_get(i-1,(hm_column-1)-1) + hm_get(i+1,0) + hm_get(i+1,(hm_column-1)-1) + hm_get(i-1,0))/4.0)*cdiag +
+					((hm_get(i-1,(hm_column-1)-1) + hm_get(i+1,0) + hm_get(i+1,(hm_column-1)-1) + hm_get(i-1,0))*.25)*cdiag +
 					//Add current
 					hm_get(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
 			);
@@ -175,11 +167,7 @@ void do_compute(const struct parameters* p, struct results *r)
 
 	}//end omp
 
-	if (checkSanity && sanityPGM) renderImageMemory(r->niter, -100.0, +100.0);
-
 	hm_swap();
-
-	// add inter
 	r->niter++;
 
 }
@@ -211,7 +199,7 @@ int hm_init_map(struct parameters * p) {
 		if (HM_VERBOSE) printf("Error while allocating memory in hm_init_map: %i, %i", result1, result2);
 	}else {
 		hm_data     =   (double*) (tmp1);
-		hm_prevData =   (double*) (tmp1+column*(row+2)); //skip two ghost rows and a map.
+		hm_prevData =   (double*) (tmp1+column*(row+2)*sizeof(double)); //skip two ghost rows and a map.
 		hm_coeff    =   (double*) tmp3;
 		hm_row     =   row;
 		hm_column  =   column;
