@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <emmintrin.h>
+#include <unistd.h>
 #include "../src/compute.h"
 #include "../src/output.h"
 
@@ -109,6 +110,31 @@ void calcStatistics(struct parameters* p,struct results* r) {
     	r->tavg += sum/(hm_column*hm_row);
 }
 
+void checkAnswer(unsigned int i, unsigned int j, double cn, double cd) {
+	double cnext = (1-hm_get_coeff(i,j))*sideCoef;
+	double cdiag = 1-hm_get_coeff(i,j)-cnext;
+	cnext *= .25;
+	cdiag *= .25;
+	static char first = 1;
+	double expected =
+			//SUm neighbours (direct)
+			((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1)))*cnext +
+			//Sum diag
+			((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1)))*cdiag +
+			//Add current
+			hm_get(i,j) * hm_get_coeff(i,j);
+
+	if (expected != hm_get_current(i,j)/* || cnext!=cn || cdiag!=cd */) {
+		if  (first) {
+			first = 0;
+			fprintf(stderr,"unexpected value at (i, j) Value (diff)\t& cnext, cdiag (diff, diff)\n");
+		}
+		fprintf(stderr,"unexpected value at (%u, %u) %.8f (%.8f)\t& %.8f, %.8f (%.8f, %.8f)\n",i,j, hm_get_current(i,j), hm_get_current(i,j) - expected, cn,cd, cn-cnext, cd-cdiag);
+//		fprintf(stderr,"unexpected value at (%u, %u) %.8f (%.8f)\t& %.8f, %.8f (%.8f, %.8f)\n",i,j, hm_get_current(i,j), expected, cn,cd, cnext, cdiag);
+		sleep(1);
+	}
+}
+
 void do_compute(const struct parameters* p, struct results *r)
 {
 		//Intresting way of declaring privates
@@ -117,7 +143,7 @@ void do_compute(const struct parameters* p, struct results *r)
 		// Calculate the inner sums
 		for ( i = 0; i < hm_row ; i++)
 		{
-
+			double diag, next;
 			//left
 			cnext = (1-hm_get_coeff(i,0))*sideCoef;
 			cdiag = 1-hm_get_coeff(i,0)-cnext;
@@ -135,9 +161,11 @@ void do_compute(const struct parameters* p, struct results *r)
 			{
 				//Calculate both cnext and cdiag for i,j and i,j+1
 				__m128d cnextd, cdiagd;
+//				cnext = (1-hm_get_coeff(i,j))*sideCoef;
+//				cdiag = 1-hm_get_coeff(i,j)-cnext;
 				cdiagd = cnextd = 1 - _mm_loadu_pd(hm_get_coeffa(i,j));
 				cnextd *= sideCoef;
-				cdiagd -= cnext;
+				cdiagd -= cnextd;
 				cnextd *= .25;
 				cdiagd *= .25;
 
@@ -164,14 +192,18 @@ void do_compute(const struct parameters* p, struct results *r)
 				next1 = _mm_shuffle_pd(top2, bot2, _MM_SHUFFLE2(1,1)); //second of top2 and bot2
 
 				//Calculate weighted
-				diag1 *= cdiag;
-				diag2 *= cdiag;
-				next1 *= cnext;
-				next2 *= cnext;
+				diag2 += diag1;
+				diag = (double)diag2[0] + (double)diag2[1];
+				next2 += next1;
+				next = (double)next2[0] + (double)next2[1];
+
+				next *= cnext;
+				diag *= cdiag;
 
 				//Sum
-				diag1 += diag2 + next1 + next2;
-				hm_set(i,j,(double)diag1[0] + (double)diag1[1]);
+				hm_set(i,j,next + diag + hm_get(i,j)*hm_get_coeff(i,j));
+
+				checkAnswer(i,j,cnext, cdiag);
 
 				//([-1 (0][1)2])[3 4]
 
@@ -185,15 +217,19 @@ void do_compute(const struct parameters* p, struct results *r)
 				next1 = _mm_shuffle_pd(mid1, mid2, _MM_SHUFFLE2(1,1));
 				next2 = _mm_shuffle_pd(top1, bot1, _MM_SHUFFLE2(0,0));
 
+
 				//Calculate weighted
-				diag1 *= cdiag;
-				diag2 *= cdiag;
-				next1 *= cnext;
-				next2 *= cnext;
+				diag2 += diag1;
+				diag = (double)diag2[0] + (double)diag2[1];
+				next2 += next1;
+				next = (double)next2[0] + (double)next2[1];
+
+				next *= cnext;
+				diag *= cdiag;
 
 				//Sum
-				diag1 += diag2 + next1 + next2;
-				hm_set(i,j+1,(double)diag1[0] + (double)diag1[1]);
+				hm_set(i,j+1,next + diag + hm_get_current(i,j+1) * hm_get_coeff(i,j+1));
+				checkAnswer(i,j+1, cnext, cdiag);
 
 			}
 
