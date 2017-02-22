@@ -9,8 +9,8 @@
 #define sideCoef 0.58578643762
 #define _E_parallel 1
 #define ompsection parallel default(none) \
-	shared(hm_data, hm_prevData, hm_coeff, hm_row, hm_column, stdout) \
-	private(i,j) if((hm_row*hm_column > 100000) && _E_parallel)
+	shared(hm_data, hm_prevData, hm_coeff, hm_row, hm_column, r) \
+	if((hm_row*hm_column > 100000) && _E_parallel)
 
 #define ompforloop2d for nowait schedule(static)
 //#define ompforloop1d for nowait schedule(guided)
@@ -115,11 +115,11 @@ void calcStatistics(struct parameters* p,struct results* r) {
 
 void do_compute(const struct parameters* p, struct results *r)
 {
-	unsigned int i, j;
 	#pragma omp ompsection
 	{
+		//Intresting way of declaring privates
 		double cdiag, cnext;
-
+		unsigned int i, j;
 		// Calculate the inner sums
 		#pragma omp ompforloop2d
 		for ( i = 0; i < hm_row ; i++)
@@ -164,11 +164,16 @@ void do_compute(const struct parameters* p, struct results *r)
 					hm_get(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
 			);
 		}
+//		#pragma omp barrier
+
+		#pragma omp single
+		r->niter++;
+
+		#pragma omp barrier
+		#pragma omp single
+		hm_swap();
 
 	}//end omp
-
-	hm_swap();
-	r->niter++;
 
 }
 
