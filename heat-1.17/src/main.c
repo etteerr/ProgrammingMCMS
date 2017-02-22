@@ -20,6 +20,9 @@ int main(int argc, char **argv)
     //set time
     r.time = 0;
 
+    //wait a sec or 2
+    sleep(2);
+
     //Main loop
     int j;
     while(r.niter<p.maxiter) {
