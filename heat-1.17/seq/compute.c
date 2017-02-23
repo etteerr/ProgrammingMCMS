@@ -135,6 +135,69 @@ void checkAnswer(unsigned int i, unsigned int j, double cn, double cd) {
 	}
 }
 
+
+void do_compute_seq(const struct parameters* p, struct results *r)
+{
+	//Intresting way of declaring privates
+	double cdiag, cnext;
+	unsigned int i, j;
+	// Calculate the inner sums
+
+	for ( i = 0; i < hm_row ; i++)
+	{
+
+		//left
+		cnext = (1-hm_get_coeff(i,0))*sideCoef;
+		cdiag = 1-hm_get_coeff(i,0)-cnext;
+		hm_set(i,0,
+				//SUm neighbours (direct)
+				((hm_get(i-1,0) + hm_get(i+1,0) + hm_get(i,hm_column-1) + hm_get(i,1))*.25)*cnext +
+				//Sum diag
+				((hm_get(i-1,hm_column-1) + hm_get(i+1,1) + hm_get(i+1,hm_column-1) + hm_get(i-1,1))*.25)*cdiag +
+				//Add current
+				hm_get(i,0) * hm_get_coeff(i,0)
+		);
+
+		//Middle
+		for ( j = 1; j < hm_column-1; j++)
+		{
+			cnext = (1-hm_get_coeff(i,j))*sideCoef;
+			cdiag = 1-hm_get_coeff(i,j)-cnext;
+			hm_set(i,j,
+					//SUm neighbours (direct)
+					((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1))*.25)*cnext +
+					//Sum diag
+					((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1))*.25)*cdiag +
+					//Add current
+					hm_get(i,j) * hm_get_coeff(i,j)
+			);
+		}
+
+		//right
+		cnext = (1-hm_get_coeff(i,(hm_column-1)))*sideCoef;
+		cdiag = 1-hm_get_coeff(i,(hm_column-1))-cnext;
+		hm_set(i,(hm_column-1),
+				//SUm neighbours (direct)
+				((hm_get(i-1,(hm_column-1)) + hm_get(i+1,(hm_column-1)) + hm_get(i,(hm_column-1)-1) + hm_get(i,0))*.25)*cnext +
+				//Sum diag
+				((hm_get(i-1,(hm_column-1)-1) + hm_get(i+1,0) + hm_get(i+1,(hm_column-1)-1) + hm_get(i-1,0))*.25)*cdiag +
+				//Add current
+				hm_get(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
+		);
+	}
+//		#pragma omp barrier
+
+
+	r->niter++;
+
+
+
+	hm_swap();
+
+
+
+}
+
 void do_compute(const struct parameters* p, struct results *r)
 {
 		//Intresting way of declaring privates
@@ -201,9 +264,10 @@ void do_compute(const struct parameters* p, struct results *r)
 				diag *= cdiag;
 
 				//Sum
+				// hm_set instead of _mm_storeu, as this method is alot faster (almost x2)
 				hm_set(i,j,next + diag + hm_get(i,j)*hm_get_coeff(i,j));
 
-				checkAnswer(i,j,cnext, cdiag);
+//				checkAnswer(i,j,cnext, cdiag);
 
 				//([-1 (0][1)2])[3 4]
 
@@ -229,7 +293,7 @@ void do_compute(const struct parameters* p, struct results *r)
 
 				//Sum
 				hm_set(i,j+1,next + diag + hm_get_current(i,j+1) * hm_get_coeff(i,j+1));
-				checkAnswer(i,j+1, cnext, cdiag);
+//				checkAnswer(i,j+1, cnext, cdiag);
 
 			}
 
