@@ -1,7 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <emmintrin.h>
+//#include <emmintrin.h>
+#include <x86intrin.h>
 #include <unistd.h>
 #include "../src/compute.h"
 #include "../src/output.h"
@@ -136,7 +137,7 @@ void checkAnswer(unsigned int i, unsigned int j, double cn, double cd) {
 }
 
 
-void do_compute_seq(const struct parameters* p, struct results *r)
+void do_compute(const struct parameters* p, struct results *r)
 {
 	//Intresting way of declaring privates
 	double cdiag, cnext;
@@ -198,7 +199,7 @@ void do_compute_seq(const struct parameters* p, struct results *r)
 
 }
 
-void do_compute(const struct parameters* p, struct results *r)
+void do_compute_sse(const struct parameters* p, struct results *r)
 {
 		//Intresting way of declaring privates
 		double cdiag, cnext;
@@ -238,6 +239,15 @@ void do_compute(const struct parameters* p, struct results *r)
 
 				//i,j
 				__m128d top2, top1, mid2, mid1, bot2, bot1, diag1, diag2, next1, next2; //10/16 vars
+//				╔════════════════════════════════════════╗
+//				║                Load (1)                ║
+//				╠═════════╦═════════╦═════════╦══════════╣
+//				║ top2[0] ║ top2[1] ║ top1[0] ║ top1[1]  ║
+//				╠═════════╬═════════╬═════════╬══════════╣
+//				║ mid2[0] ║ mid2[1] ║ mid1[0] ║ mid1[1]  ║
+//				╠═════════╬═════════╬═════════╬══════════╣
+//				║ bot2[0] ║ bot2[1] ║ bot1[0] ║ bot1[1]  ║
+//				╠═════════╩═════════╩═════════╩══════════╣
 
 				//Load stage 1
 				top2 = _mm_load_pd(hm_geta(i-1,j-1));//upper  left + 1
@@ -267,7 +277,7 @@ void do_compute(const struct parameters* p, struct results *r)
 				// hm_set instead of _mm_storeu, as this method is alot faster (almost x2)
 				hm_set(i,j,next + diag + hm_get(i,j)*hm_get_coeff(i,j));
 
-//				checkAnswer(i,j,cnext, cdiag);
+				//checkAnswer(i,j,cnext, cdiag);
 
 				//([-1 (0][1)2])[3 4]
 
@@ -292,8 +302,8 @@ void do_compute(const struct parameters* p, struct results *r)
 				diag *= cdiag;
 
 				//Sum
-				hm_set(i,j+1,next + diag + hm_get_current(i,j+1) * hm_get_coeff(i,j+1));
-//				checkAnswer(i,j+1, cnext, cdiag);
+				hm_set(i,j+1,next + diag + hm_get(i,j+1) * hm_get_coeff(i,j+1));
+				//checkAnswer(i,j+1, cnext, cdiag);
 
 			}
 

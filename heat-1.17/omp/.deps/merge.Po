@@ -32,7 +32,8 @@ merge.o: merge.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
  /usr/include/x86_64-linux-gnu/bits/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/stdio2.h /usr/include/ctype.h \
- /usr/include/xlocale.h /usr/lib/gcc/x86_64-linux-gnu/5/include/omp.h
+ /usr/include/xlocale.h /usr/lib/gcc/x86_64-linux-gnu/5/include/omp.h \
+ /usr/include/x86_64-linux-gnu/sys/time.h
 
 /usr/include/stdc-predef.h:
 
@@ -127,3 +128,5 @@ merge.o: merge.c /usr/include/stdc-predef.h /usr/include/stdlib.h \
 /usr/include/xlocale.h:
 
 /usr/lib/gcc/x86_64-linux-gnu/5/include/omp.h:
+
+/usr/include/x86_64-linux-gnu/sys/time.h:
