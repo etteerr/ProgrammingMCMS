@@ -19,9 +19,12 @@ int main(int argc, char **argv)
 
     //set time
     r.time = 0;
+    r.niter = 0;
 
     //wait a sec or 2
     sleep(2);
+
+    printf("%i, %i\n", p.maxiter, r.niter);
 
     //Main loop
     int j;
