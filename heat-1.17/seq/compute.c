@@ -374,18 +374,18 @@ int hm_init_map(struct parameters * p) {
 		memcpy((void*)(hm_data+(row+1)*column), (void*)p->tinit, sizeof(double)*column);
 
 		//print test
-		begin_picture(666, column, row, p->io_tmin, p->io_tmax);
-			for (int i = 0; i < row; i++)
-				for(int j = 0; j < column; j++)
-					draw_point(i,j,p->tinit[i*column + j]);
-
-		end_picture();
-		begin_picture(667, column, row, p->io_tmin, p->io_tmax);
-			for (int i = 1; i < row+1; i++)
-				for(int j = 0; j < column; j++)
-					draw_point(i,j,hm_get(i,j));
-
-		end_picture();
+//		begin_picture(666, column, row, p->io_tmin, p->io_tmax);
+//			for (int i = 0; i < row; i++)
+//				for(int j = 0; j < column; j++)
+//					draw_point(i,j,p->tinit[i*column + j]);
+//
+//		end_picture();
+//		begin_picture(667, column, row, p->io_tmin, p->io_tmax);
+//			for (int i = 1; i < row+1; i++)
+//				for(int j = 0; j < column; j++)
+//					draw_point(i,j,hm_get(i,j));
+//
+//		end_picture();
 
 		if (checkSanity) {
 	//		Test map
