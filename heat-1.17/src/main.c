@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
     //If its a new file, print header
     if (ftell(fp)==0) {
-    	fprintf(fp, "Exe;File;Rows;Columns; Iterations; FLOP/s;\n");
+    	fprintf(fp, "Exe;threads;File;Rows;Columns; Iterations; FLOP/s;\n");
     }
 
     //Print data

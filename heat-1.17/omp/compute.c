@@ -10,7 +10,7 @@
 #define _E_parallel 1
 #define ompsection parallel default(none) \
 	shared(hm_data, hm_prevData, hm_coeff, hm_row, hm_column, r) \
-	if((hm_row*hm_column > 100000) && _E_parallel)
+	if((hm_row*hm_column > 1) && _E_parallel)
 
 #define ompforloop2d for nowait schedule(static)
 //#define ompforloop1d for nowait schedule(guided)
