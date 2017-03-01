@@ -32,6 +32,8 @@ struct parameters {
 
     /* number of threads */
     size_t nthreads;
+
+    char filename[256];
 };
  
 void read_parameters(struct parameters* p, int argc, char **argv);

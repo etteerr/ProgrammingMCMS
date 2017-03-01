@@ -90,6 +90,8 @@ void read_parameters(struct parameters* p, int argc, char **argv)
     conductivity_fname = "pattern_100x150.pgm";
     tinit_fname = "pattern_100x150.pgm";
 
+    strcpy(p->filename, tinit_fname);
+
     while ((ch = getopt(argc, argv, "c:e:hH:i:k:L:m:M:n:N:p:t:r")) != -1)
     {
         switch(ch) {
