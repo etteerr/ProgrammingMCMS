@@ -71,11 +71,11 @@ int main(int argc, char **argv)
 
     //If its a new file, print header
     if (ftell(fp)==0) {
-    	fprintf(fp, "File;Rows;Columns; Iterations; FLOP/s;\n");
+    	fprintf(fp, "Exe;File;Rows;Columns; Iterations; FLOP/s;\n");
     }
 
     //Print data
-    fprintf(fp,"%s;%lu;%lu;%lu;% .6e\n", p.filename, p.N, p.M, r.niter,
+    fprintf(fp,"%s;%s;%lu;%lu;%lu;% .6e\n", argv[0], p.filename, p.N, p.M, r.niter,
     		(double) p.N * (double)p.M *
 			(double)(r.niter * FPOPS_PER_POINT_PER_ITERATION +
 			(double) r.niter / p.period) / r.time);
