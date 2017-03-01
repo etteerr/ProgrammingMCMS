@@ -162,14 +162,19 @@ void vecsort_loop(int **a, int *lengths, unsigned long size) {
 
 void vecsort_task(int **a, int *lengths, unsigned long size) {
 	int i,j;
-
-	for(i=0; i<size; i++) {
-		int * tmp;
-		if (posix_memalign(&tmp, 16, sizeof(int)*lengths[i])) {
-			fprintf(stderr, "Error while allocating tmp memory.");
+#pragma omp parallel sections
+	{
+#pragma omp single
+		{
+			for(i=0; i<size; i++) {
+				int * tmp;
+				if (posix_memalign(&tmp, 16, sizeof(int)*lengths[i])) {
+					fprintf(stderr, "Error while allocating tmp memory.");
+				}
+				splitsp(a[i], 0, lengths[i]-1, tmp);
+				free(tmp);
+			}
 		}
-		splitsp(a[i], 0, lengths[i]-1, tmp);
-		free(tmp);
 	}
 }
 
