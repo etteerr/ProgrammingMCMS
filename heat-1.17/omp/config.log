@@ -147,7 +147,7 @@ configure:3811: gcc -o conftest -g -O2   conftest.c  >&5
 conftest.c:16:6: warning: conflicting types for built-in function 'fabs'
  char fabs ();
       ^
-/tmp/cc8TqfNO.o: In function `main':
+/tmp/cccKozTY.o: In function `main':
 /home/erwin/Documents/ProgrammingMCMS/heat-1.17/omp/conftest.c:20: undefined reference to `fabs'
 collect2: error: ld returned 1 exit status
 configure:3818: $? = 1

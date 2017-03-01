@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     }
 
     //Print data
-    fprintf(fp,"%s;%s;%lu;%lu;%lu;% .6e\n", argv[0], p.filename, p.N, p.M, r.niter,
+    fprintf(fp,"%s;%s;%s;%lu;%lu;%lu;% .6e\n", argv[0], p.filename, getenv("OMP_NUM_THREADS"), p.N, p.M, r.niter,
     		(double) p.N * (double)p.M *
 			(double)(r.niter * FPOPS_PER_POINT_PER_ITERATION +
 			(double) r.niter / p.period) / r.time);

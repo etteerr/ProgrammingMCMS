@@ -1,9 +1,11 @@
-noinst_PROGRAMS = heat msort 
+noinst_PROGRAMS = heat msort vecsort
 
 heat_SOURCES = $(COMMON)/main.c compute.c
 
 msort_SOURCES = merge.c
+vecsort_SOURCES = vecsort.c
 msort_LDADD = 
+vecsort_LDADD = 
 
 ## Uncomment the following:
 # noinst_PROGRAMS += matrix
