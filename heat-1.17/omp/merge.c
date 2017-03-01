@@ -105,11 +105,12 @@ void splitsp(int a[], int start, int end, int tmp[])
 	{
 		int mid = (start + end) / 2;
 #pragma omp task
+		{
 		splitsp(a, start, mid, tmp);
-#pragma omp task
 		splitsp(a, mid + 1, end, tmp);
-#pragma omp taskwait
 		merge(a, start, end, tmp);
+		}
+#pragma omp taskwait
 	}
 }
 
@@ -360,11 +361,11 @@ int main(int argc, char **argv) {
 
 
   if(run_Testroutine) {
-		int size = 10;
+		int size = 5;
 		unsigned int arr[size];
 		int i;
 		for(i=0; i<size; i++) {
-			arr[i] = ((i*10)+1)*MB;
+			arr[i] = i*i*i*MB+3;
 		}
 		return testroutine(arr, size, 2, seed);
   }else
