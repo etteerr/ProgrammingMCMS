@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
     //Save results appending to file
     FILE *fp;
-    fp = fopen("/var/sketch/ppp1620/heatResult.csv","a");
+    fp = fopen("/var/scratch/ppp1620/heatResult.csv","a");
     printf("%li", ftell(fp));
 
     //Check filestream
