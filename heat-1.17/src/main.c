@@ -2,8 +2,11 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #define convThreshold 1.0e-3
+#define dasrun 0
+#define PTH
 
 #define FPOPS_PER_POINT_PER_ITERATION (                 \
         1     /* current point 1 mul */ +               \
@@ -13,29 +16,12 @@
         1     /* difference old/new */                  \
         )
 
-int main(int argc, char **argv)
-{
-    struct parameters p;
-    struct results r;
-    struct timeval start,end;
+void pth_run(struct parameters p,struct results r) {
+	do_compute(&p,&r);
+}
 
-
-    read_parameters(&p, argc, argv);
-
-    //Allocate& init heatmap
-    if (hm_init_map(&p))
-        return 1;
-
-    //set time
-    r.time = 0;
-    r.niter = 0;
-
-    //wait a sec or 2
-    sleep(2);
-
-    printf("%lu, %lu\n", p.maxiter, r.niter);
-
-    //Main loop
+void default_run(struct parameters p,struct results r) {
+	struct timeval start,end;
     int j;
     while(r.niter<p.maxiter) {
 
@@ -57,8 +43,9 @@ int main(int argc, char **argv)
     	//check stop condition
     	if (r.maxdiff < p.threshold) break;
     }
+}
 
-    //Save results appending to file
+int saveToFile(struct parameters p,struct results r, char **argv) {
     FILE *fp;
     fp = fopen("/var/scratch/ppp1620/heatResult.csv","a");
     printf("%li", ftell(fp));
@@ -82,6 +69,38 @@ int main(int argc, char **argv)
 
     fflush(fp);
     fclose(fp);
+
+    return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+    struct parameters p;
+    struct results r;
+
+    read_parameters(&p, argc, argv);
+
+    //Allocate& init heatmap
+    if (hm_init_map(&p))
+        return 1;
+
+    //set time
+    r.time = 0;
+    r.niter = 0;
+
+    //wait a sec or 2
+    sleep(2);
+
+    //Main loop
+#ifdef PTH
+    pth_run(p,r);
+#else
+    default_run(p,r);
+#endif
+
+    //Save results appending to file
+    if (dasrun) return saveToFile(p,r,argv);
 
 
     return 0;

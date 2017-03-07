@@ -23,7 +23,7 @@ size_t hm_column = 0;
 
 //Getters and setters
 // Inline for performance
-#define hm_get(R,C) hm_prevData[hm_column * (R+1) + C]
+#define hm_get_l(R,C) hm_prevData[hm_column * (R+1) + C]
 #define hm_geta(R,C) (hm_prevData +hm_column * (R+1) + C)
 //__attribute__((assume_aligned(16)))
 //inline double hm_get(int row, int column) {
@@ -103,7 +103,7 @@ void calcStatistics(struct parameters* p,struct results* r) {
 				//min
 				if (hm_get_current(i,j) < r->tmin) r->tmin = hm_get_current(i,j);
 				//maxdiff
-				if (fabs(hm_get_current(i,j)-hm_get(i,j)) > r->maxdiff) r->maxdiff = fabs(hm_get_current(i,j)-hm_get(i,j));
+				if (fabs(hm_get_current(i,j)-hm_get_l(i,j)) > r->maxdiff) r->maxdiff = fabs(hm_get_current(i,j)-hm_get_l(i,j));
 				//searchme
 				sum += hm_get_current(i,j);
     		}
@@ -119,11 +119,11 @@ void checkAnswer(unsigned int i, unsigned int j, double cn, double cd) {
 	static char first = 1;
 	double expected =
 			//SUm neighbours (direct)
-			((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1)))*cnext +
+			((hm_get_l(i-1,j) + hm_get_l(i+1,j) + hm_get_l(i,j-1) + hm_get_l(i,j+1)))*cnext +
 			//Sum diag
-			((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1)))*cdiag +
+			((hm_get_l(i-1,j-1) + hm_get_l(i+1,j+1) + hm_get_l(i+1,j-1) + hm_get_l(i-1,j+1)))*cdiag +
 			//Add current
-			hm_get(i,j) * hm_get_coeff(i,j);
+			hm_get_l(i,j) * hm_get_coeff(i,j);
 
 	if (expected != hm_get_current(i,j)/* || cnext!=cn || cdiag!=cd */) {
 		if  (first) {
@@ -152,11 +152,11 @@ void do_compute(const struct parameters* p, struct results *r)
 		cdiag = 1-hm_get_coeff(i,0)-cnext;
 		hm_set(i,0,
 				//SUm neighbours (direct)
-				((hm_get(i-1,0) + hm_get(i+1,0) + hm_get(i,hm_column-1) + hm_get(i,1))*.25)*cnext +
+				((hm_get_l(i-1,0) + hm_get_l(i+1,0) + hm_get_l(i,hm_column-1) + hm_get_l(i,1))*.25)*cnext +
 				//Sum diag
-				((hm_get(i-1,hm_column-1) + hm_get(i+1,1) + hm_get(i+1,hm_column-1) + hm_get(i-1,1))*.25)*cdiag +
+				((hm_get_l(i-1,hm_column-1) + hm_get_l(i+1,1) + hm_get_l(i+1,hm_column-1) + hm_get_l(i-1,1))*.25)*cdiag +
 				//Add current
-				hm_get(i,0) * hm_get_coeff(i,0)
+				hm_get_l(i,0) * hm_get_coeff(i,0)
 		);
 
 		//Middle
@@ -166,11 +166,11 @@ void do_compute(const struct parameters* p, struct results *r)
 			cdiag = 1-hm_get_coeff(i,j)-cnext;
 			hm_set(i,j,
 					//SUm neighbours (direct)
-					((hm_get(i-1,j) + hm_get(i+1,j) + hm_get(i,j-1) + hm_get(i,j+1))*.25)*cnext +
+					((hm_get_l(i-1,j) + hm_get_l(i+1,j) + hm_get_l(i,j-1) + hm_get_l(i,j+1))*.25)*cnext +
 					//Sum diag
-					((hm_get(i-1,j-1) + hm_get(i+1,j+1) + hm_get(i+1,j-1) + hm_get(i-1,j+1))*.25)*cdiag +
+					((hm_get_l(i-1,j-1) + hm_get_l(i+1,j+1) + hm_get_l(i+1,j-1) + hm_get_l(i-1,j+1))*.25)*cdiag +
 					//Add current
-					hm_get(i,j) * hm_get_coeff(i,j)
+					hm_get_l(i,j) * hm_get_coeff(i,j)
 			);
 		}
 
@@ -179,11 +179,11 @@ void do_compute(const struct parameters* p, struct results *r)
 		cdiag = 1-hm_get_coeff(i,(hm_column-1))-cnext;
 		hm_set(i,(hm_column-1),
 				//SUm neighbours (direct)
-				((hm_get(i-1,(hm_column-1)) + hm_get(i+1,(hm_column-1)) + hm_get(i,(hm_column-1)-1) + hm_get(i,0))*.25)*cnext +
+				((hm_get_l(i-1,(hm_column-1)) + hm_get_l(i+1,(hm_column-1)) + hm_get_l(i,(hm_column-1)-1) + hm_get_l(i,0))*.25)*cnext +
 				//Sum diag
-				((hm_get(i-1,(hm_column-1)-1) + hm_get(i+1,0) + hm_get(i+1,(hm_column-1)-1) + hm_get(i-1,0))*.25)*cdiag +
+				((hm_get_l(i-1,(hm_column-1)-1) + hm_get_l(i+1,0) + hm_get_l(i+1,(hm_column-1)-1) + hm_get_l(i-1,0))*.25)*cdiag +
 				//Add current
-				hm_get(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
+				hm_get_l(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
 		);
 	}
 //		#pragma omp barrier
@@ -213,11 +213,11 @@ void do_compute_sse(const struct parameters* p, struct results *r)
 			cdiag = 1-hm_get_coeff(i,0)-cnext;
 			hm_set(i,0,
 					//SUm neighbours (direct)
-					((hm_get(i-1,0) + hm_get(i+1,0) + hm_get(i,hm_column-1) + hm_get(i,1))*.25)*cnext +
+					((hm_get_l(i-1,0) + hm_get_l(i+1,0) + hm_get_l(i,hm_column-1) + hm_get_l(i,1))*.25)*cnext +
 					//Sum diag
-					((hm_get(i-1,hm_column-1) + hm_get(i+1,1) + hm_get(i+1,hm_column-1) + hm_get(i-1,1))*.25)*cdiag +
+					((hm_get_l(i-1,hm_column-1) + hm_get_l(i+1,1) + hm_get_l(i+1,hm_column-1) + hm_get_l(i-1,1))*.25)*cdiag +
 					//Add current
-					hm_get(i,0) * hm_get_coeff(i,0)
+					hm_get_l(i,0) * hm_get_coeff(i,0)
 			);
 
 			//Middle
@@ -275,7 +275,7 @@ void do_compute_sse(const struct parameters* p, struct results *r)
 
 				//Sum
 				// hm_set instead of _mm_storeu, as this method is alot faster (almost x2)
-				hm_set(i,j,next + diag + hm_get(i,j)*hm_get_coeff(i,j));
+				hm_set(i,j,next + diag + hm_get_l(i,j)*hm_get_coeff(i,j));
 
 				//checkAnswer(i,j,cnext, cdiag);
 
@@ -302,7 +302,7 @@ void do_compute_sse(const struct parameters* p, struct results *r)
 				diag *= cdiag;
 
 				//Sum
-				hm_set(i,j+1,next + diag + hm_get(i,j+1) * hm_get_coeff(i,j+1));
+				hm_set(i,j+1,next + diag + hm_get_l(i,j+1) * hm_get_coeff(i,j+1));
 				//checkAnswer(i,j+1, cnext, cdiag);
 
 			}
@@ -312,11 +312,11 @@ void do_compute_sse(const struct parameters* p, struct results *r)
 			cdiag = 1-hm_get_coeff(i,(hm_column-1))-cnext;
 			hm_set(i,(hm_column-1),
 					//SUm neighbours (direct)
-					((hm_get(i-1,(hm_column-1)) + hm_get(i+1,(hm_column-1)) + hm_get(i,(hm_column-1)-1) + hm_get(i,0))*.25)*cnext +
+					((hm_get_l(i-1,(hm_column-1)) + hm_get_l(i+1,(hm_column-1)) + hm_get_l(i,(hm_column-1)-1) + hm_get_l(i,0))*.25)*cnext +
 					//Sum diag
-					((hm_get(i-1,(hm_column-1)-1) + hm_get(i+1,0) + hm_get(i+1,(hm_column-1)-1) + hm_get(i-1,0))*.25)*cdiag +
+					((hm_get_l(i-1,(hm_column-1)-1) + hm_get_l(i+1,0) + hm_get_l(i+1,(hm_column-1)-1) + hm_get_l(i-1,0))*.25)*cdiag +
 					//Add current
-					hm_get(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
+					hm_get_l(i,(hm_column-1)) * hm_get_coeff(i,(hm_column-1))
 			);
 		}
 
