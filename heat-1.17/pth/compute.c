@@ -13,7 +13,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-#define ED_NUM_THREADS 1
+#define ED_NUM_THREADS 16
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 
@@ -413,9 +413,24 @@ void do_compute(const struct parameters *p, struct results *r) {
     	//check stop condition
     	if (r->maxdiff < p->threshold) break;
     }
-
-    for(i = 0; i <num_threads; i++)
+    //**** Cleanup *****
+    //Threads
+    for(i = 0; i <num_threads; i++) {
     	pthread_cancel(thread_handles[i].thread_handle);
+    	pthread_mutex_destroy(&workq.queue_buffer[i].lock);
+    }
+
+    //pthread structures
+    pthread_mutexattr_destroy(&mAttr);
+    pthread_attr_destroy(&pAttr);
+    pthread_spin_destroy(&workq.slock);
+    pthread_condattr_destroy(&cAttr);
+    pthread_cond_destroy(&prCond);
+
+    //Mallocs
+    free(workq.queue_buffer);
+    free(thread_handles);
+
 
 }
 
