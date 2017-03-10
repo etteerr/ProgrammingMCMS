@@ -13,7 +13,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-#define ED_NUM_THREADS 16
+#define ED_NUM_THREADS 2
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 
@@ -58,7 +58,7 @@ inline struct work * get_work(struct work_queue *wq, unsigned int max_step, unsi
 	pthread_spin_lock(&wq->slock);
 	if (Verbose_work_request) printf("Request work from %lu (%i) ", id, wq->buf_ptr);
 
-	//Lock work
+	//Lock workk
 	if (pthread_mutex_trylock(&wq->queue_buffer[wq->buf_ptr].lock)) {
 		//lock failed. already someone working on this job?
 		pthread_spin_unlock(&wq->slock);
