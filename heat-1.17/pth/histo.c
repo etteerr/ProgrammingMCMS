@@ -80,23 +80,23 @@ void parseInput(int nargs, char **args, unsigned char ** data, unsigned long * l
 	//Get inputs
 	register int i = 1;
 	while(i < nargs) {
-		if ((i+1)==nargs)
+
+		char *cmd = args[i++];
+
+		if (strcmp(cmd, "-f"))
 			*file = *args[i++];
-		else {
-			char *cmd = args[i++];
 
-			if (strcmp(cmd, "-h"))
-				height = atoi(args[i++]);
+		if (strcmp(cmd, "-h"))
+			height = atoi(args[i++]);
 
-			if (strcmp(cmd, "-w"))
-				width = atoi(args[i++]);
+		if (strcmp(cmd, "-w"))
+			width = atoi(args[i++]);
 
-			if (strcmp(cmd, "--help"))
-				printhelp();
+		if (strcmp(cmd, "--help"))
+			printhelp();
 
-			if (strcmp(cmd, "-t"))
-				*nThreads = atoi(args[i++]);
-		}
+		if (strcmp(cmd, "-t"))
+			*nThreads = atoi(args[i++]);
 	}
 
 	//Set length
