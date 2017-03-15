@@ -1,0 +1,9 @@
+#!/bin/bash
+for ((i=1;i<=16; i++)) do
+	export ED_NUM_THREADS=$i
+	prun -np 1 -reserve $1 $2 -c plasma_100x100.pgm -t plasma_100x100.pgm -n 100 -m 100 -i 10000 -k 1000
+	prun -np 1 -reserve $1 $2 -c plasma_1000x1000.pgm -t plasma_1000x1000.pgm -n 1000 -m 1000 -i 5000 -k 5000
+	prun -np 1 -reserve $1 $2 -c plasma_100x20000.pgm -t plasma_100x20000.pgm -n 20000 -m 100 -i 1000 -k 100
+	prun -np 1 -reserve $1 $2 -c plasma_20000x100.pgm -t plasma_20000x100.pgm -n 100 -m 20000 -i 1000 -k 100
+	prun -np 1 -reserve $1 $2 -c plasma_5000x5000.pgm -t plasma_5000x5000.pgm -n 5000 -m 5000 -i 1000 -k 100
+done

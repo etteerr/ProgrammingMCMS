@@ -1,0 +1,10 @@
+#!/bin/bash
+for ((i=1;i<=16; i++)) do
+	prun -np 1 -reserve $1 histo -h 100 -w 150 -t $i plasma_100x150.pgm
+	prun -np 1 -reserve $1 histo -h 100 -w 1000 -t $i plasma_100x1000.pgm
+	prun -np 1 -reserve $1 histo -h 1000 -w 1000 -t $i plasma_1000x1000.pgm
+	prun -np 1 -reserve $1 histo -h 20000 -w 100 -t $i plasma_20000x100.pgm
+	prun -np 1 -reserve $1 histo -h 50 -w 100 -t $i plasma_50x100.pgm
+	prun -np 1 -reserve $1 histo -h 2000 -w 2000 -t $i plasma_2000x2000.pgm
+	prun -np 1 -reserve $1 histo -h 5000 -w 5000 -t $i plasma_5000x5000.pgm
+done

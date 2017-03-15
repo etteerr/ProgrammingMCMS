@@ -1,0 +1,8 @@
+#!/bin/bash
+#pipeline
+
+for ((i=$1;i<=$2; i=i*$3)) do
+	prun -reserve $4 pth/pipeline -a -n $i
+	prun -reserve $4 pth/pipeline -d -n $i
+	prun -reserve $4 pth/pipeline -r -n $i
+done
