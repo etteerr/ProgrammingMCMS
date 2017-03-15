@@ -21,7 +21,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-#define ED_NUM_THREADS 2
+//#define ED_NUM_THREADS 2
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 
@@ -442,6 +442,9 @@ void do_compute(const struct parameters *p, struct results *r) {
 	//store results
 	FILE *f;
 	f = fopen("/var/scratch/ppp1620/pth_heat.csv", "a");
+
+	if (!f)
+		return;
 
 	if (ftell(f)==0)
 		fprintf(f, "nThreads; width; height; iters; time; flops\n");

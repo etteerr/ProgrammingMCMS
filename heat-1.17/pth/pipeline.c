@@ -176,6 +176,9 @@ int main(int nargs, char ** args) {
 	FILE *f;
 	f = fopen("/var/scratch/ppp1620/pipeline.csv", "a");
 
+	if (!f)
+		return 1;
+
 	if (ftell(f)==0)
 		fprintf(f, "Size; order (asc=0 desc=1 rand=2); time;\n");
 

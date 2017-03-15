@@ -57,7 +57,7 @@ static void readpgm_uchar(const char *fname,
 }
 
 void printhelp() {
-	printf("histo [options] [file]\n"
+	printf("histo [options] -f [file]\n"
 			"Options:\n"
 			"\t-w width\n"
 			"\t-h height\n"
@@ -72,7 +72,8 @@ void parseInput(int nargs, char **args, unsigned char ** data, unsigned long * l
 	}
 
 	//Set defaults
-	char file[128] = "plasma_100x150.pgm";
+	char file_default[128] = "plasma_100x150.pgm";
+	char * file = 0;
 	unsigned int width = 100;
 	unsigned int height = 150;
 	*nThreads = 2;
@@ -83,20 +84,23 @@ void parseInput(int nargs, char **args, unsigned char ** data, unsigned long * l
 
 		char *cmd = args[i++];
 
-		if (strcmp(cmd, "-f"))
-			*file = *args[i++];
+		if (!strcmp(cmd, "-f"))
+			file = args[i++];
 
-		if (strcmp(cmd, "-h"))
+		if (!strcmp(cmd, "-h"))
 			height = atoi(args[i++]);
 
-		if (strcmp(cmd, "-w"))
+		if (!strcmp(cmd, "-w"))
 			width = atoi(args[i++]);
 
-		if (strcmp(cmd, "--help"))
+		if (!strcmp(cmd, "--help"))
 			printhelp();
 
-		if (strcmp(cmd, "-t"))
+		if (!strcmp(cmd, "-t"))
 			*nThreads = atoi(args[i++]);
+	}
+	if (file==0) {
+		file = file_default;
 	}
 
 	//Set length
@@ -821,14 +825,17 @@ int main(int nargs, char ** args) {
 
 	//run_exp5
 	double time5;
-	time5 = run_sema(bin, data, length, nThreads);
+	time5 = run_sync_atomic(bin, data, length, nThreads);
 	if (!bincorrect(bin, truebin))
 		die("Bin failure\n");
-	printf("run_sync_mutex:\t%f\n", time5);
+	printf("run_sync_atomic:\t%f\n", time5);
 
 	//store results
 	FILE *f;
 	f = fopen("/var/scratch/ppp1620/histo.csv", "a");
+
+	if (!f)
+		return 0;
 
 	if (ftell(f)==0)
 		fprintf(f, "nThreads; Size; seq; sync_mutex; full_mutex; atomic; semap; sync_mutex\n");
