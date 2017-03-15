@@ -21,7 +21,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-//#define ED_NUM_THREADS 2
+#define ED_NUM_THREADS 32
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 

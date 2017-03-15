@@ -100,7 +100,8 @@ int main(int argc, char **argv)
 #endif
 
     //Save results appending to file
-#ifndef PTH if (dasrun) return saveToFile(p,r,argv);
+#ifndef PTH
+    if (dasrun) return saveToFile(p,r,argv);
 #endif
 
     return 0;
