@@ -21,7 +21,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-#define ED_NUM_THREADS 32
+#define ED_NUM_THREADS 128
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 
@@ -384,7 +384,7 @@ void do_compute(const struct parameters *p, struct results *r) {
 
 
     	if (pthread_create(&thread_handles[i].thread_handle, &pAttr, (void*)&threader, (void*)&thread_handles[i]))
-    		exit(110 + i);
+    		die("Thread creation failed.");
     }
     unsigned int period = p->period;
     //main calc loop
