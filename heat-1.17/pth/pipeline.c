@@ -50,19 +50,19 @@ int main(int nargs, char ** args) {
 	char *cmd;
 	while(i < nargs) {
 		cmd = args[i++];
-		if (strcmp(cmd , "-a"))
+		if (strcmp(cmd , "-a")==0)
 			o = ascending;
 
-		if (strcmp(cmd , "-d"))
+		if (strcmp(cmd , "-d")==0)
 			o = decending;
 
-		if (strcmp(cmd , "-r"))
+		if (strcmp(cmd , "-r")==0)
 			o = orandom;
 
-		if (strcmp(cmd , "-n"))
+		if (strcmp(cmd , "-n")==0)
 			nElem = strtol(args[i++],NULL, 10);
 
-		if (strcmp(cmd , "-s"))
+		if (strcmp(cmd , "-s")==0)
 			nElem = atoi(args[i++]);
 	}
 

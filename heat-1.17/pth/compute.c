@@ -317,6 +317,11 @@ void do_compute(const struct parameters *p, struct results *r) {
     num_threads = atoi(getenv("ED_NUM_THREADS"));
 #endif
 
+    //quit if invalid num_threads
+    if (num_threads <= 0) {
+    	die("Invalid num_threads, run export ED_NUM_THREADS=#");
+    }
+
     //Mutex attr
     pthread_mutexattr_t mAttr;
     pthread_mutexattr_init(&mAttr);
