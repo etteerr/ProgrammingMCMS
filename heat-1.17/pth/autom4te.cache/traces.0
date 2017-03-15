@@ -64,6 +64,9 @@ m4trace:configure.ac:2: -1- m4_pattern_allow([^sharedstatedir$])
 m4trace:configure.ac:2: -1- AC_SUBST([localstatedir], ['${prefix}/var'])
 m4trace:configure.ac:2: -1- AC_SUBST_TRACE([localstatedir])
 m4trace:configure.ac:2: -1- m4_pattern_allow([^localstatedir$])
+m4trace:configure.ac:2: -1- AC_SUBST([runstatedir], ['${localstatedir}/run'])
+m4trace:configure.ac:2: -1- AC_SUBST_TRACE([runstatedir])
+m4trace:configure.ac:2: -1- m4_pattern_allow([^runstatedir$])
 m4trace:configure.ac:2: -1- AC_SUBST([includedir], ['${prefix}/include'])
 m4trace:configure.ac:2: -1- AC_SUBST_TRACE([includedir])
 m4trace:configure.ac:2: -1- m4_pattern_allow([^includedir$])
@@ -370,11 +373,11 @@ m4trace:configure.ac:8: -1- AC_SUBST([ax_pthread_config])
 m4trace:configure.ac:8: -1- AC_SUBST_TRACE([ax_pthread_config])
 m4trace:configure.ac:8: -1- m4_pattern_allow([^ax_pthread_config$])
 m4trace:configure.ac:8: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
-You should run autoupdate.], [../../lib/autoconf/general.m4:2687: AC_TRY_LINK is expanded from...
+You should run autoupdate.], [../../lib/autoconf/general.m4:2698: AC_TRY_LINK is expanded from...
 ax_pthread.m4:79: AX_PTHREAD is expanded from...
 configure.ac:8: the top level])
 m4trace:configure.ac:8: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
-You should run autoupdate.], [../../lib/autoconf/general.m4:2687: AC_TRY_LINK is expanded from...
+You should run autoupdate.], [../../lib/autoconf/general.m4:2698: AC_TRY_LINK is expanded from...
 ax_pthread.m4:79: AX_PTHREAD is expanded from...
 configure.ac:8: the top level])
 m4trace:configure.ac:8: -1- AC_DEFINE_TRACE_LITERAL([PTHREAD_CREATE_JOINABLE])

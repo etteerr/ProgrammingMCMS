@@ -10,6 +10,14 @@
 #include "../src/compute.h"
 #include "../src/output.h"
 
+#define FPOPS_PER_POINT_PER_ITERATION (                 \
+        1     /* current point 1 mul */ +               \
+        3 + 1 /* direct neighbors 3 adds + 1 mul */ +   \
+        3 + 1 /* diagonal neighbors 3 adds + 1 mul */ + \
+        2     /* final add */ +                         \
+        1     /* difference old/new */                  \
+        )
+
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
@@ -108,7 +116,7 @@ struct thread_info {
 
 	//private vars
 	unsigned long cStep;
-	unsigned long target_step; //Use __sync_fetch_and_add ? yes
+	volatile unsigned long target_step; //Use __sync_fetch_and_add ? yes
 
 	//Notify
 	unsigned int * working_threads; //number
@@ -245,7 +253,7 @@ void * threader(struct thread_info *args) {
 	while(1) {
 
 		//get work
-		w = get_work(args->q, atomic_read(&args->target_step), args->thread_id);
+		w = get_work(args->q, args->target_step, args->thread_id);
 
 		//If we got work, do it
 		if (w!=0) {
@@ -430,6 +438,20 @@ void do_compute(const struct parameters *p, struct results *r) {
     //Mallocs
     free(workq.queue_buffer);
     free(thread_handles);
+
+	//store results
+	FILE *f;
+	f = fopen("/var/scratch/ppp1620/pth_heat.csv", "a");
+
+	if (ftell(f)==0)
+		fprintf(f, "nThreads; width; height; iters; time; flops\n");
+
+	fprintf(f, "%i; %lu; %lu; %lu; %f; %f\n", num_threads, p->M, p->N, r->niter, r->time,
+	(double) p->N * (double)p->M *
+	(double)(r->niter * FPOPS_PER_POINT_PER_ITERATION +
+	(double) r->niter / p->period) / r->time);
+
+	fclose(f);
 
 
 }
