@@ -21,7 +21,7 @@
 //Pthreads
 //If commented, used env variable ED_NUM_THREADS
 //TODO: Remove mutex from work After report ;)
-#define ED_NUM_THREADS 128
+#define ED_NUM_THREADS 2
 #define Verbose_work_request 0
 #define Sleep_work_request 0
 
@@ -252,8 +252,11 @@ void * threader(struct thread_info *args) {
 
 	while(1) {
 
+		if (atomic_read(&args->target_step) < 0)
+			break;
+
 		//get work
-		w = get_work(args->q, args->target_step, args->thread_id);
+		w = get_work(args->q, atomic_read(&args->target_step), args->thread_id);
 
 		//If we got work, do it
 		if (w!=0) {
@@ -429,6 +432,7 @@ void do_compute(const struct parameters *p, struct results *r) {
     //**** Cleanup *****
     //Threads
     for(i = 0; i <num_threads; i++) {
+    	thread_handles[i].target_step = -1;
     	pthread_cancel(thread_handles[i].thread_handle);
     	pthread_mutex_destroy(&workq.queue_buffer[i].lock);
     }
